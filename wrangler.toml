@@ -1,0 +1,15 @@
+name = "waline-worker"
+main = "src/index.ts"
+
+compatibility_date = "2022-10-12"
+
+[env.production]
+kv_namespaces = [{ binding = "CFKV", id = "95afb38f60004e31828a374be11b71d8" }]
+
+[env.staging]
+kv_namespaces = [
+  { binding = "CFKV", preview_id = "e44c44edee98437796eb2280f79d30f8" },
+]
+
+[miniflare]
+kv_persist = true
