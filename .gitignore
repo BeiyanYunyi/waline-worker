@@ -9,4 +9,4 @@ yarn.lock
 *.tgz
 
 coverage
-.mf/*
+.mf
