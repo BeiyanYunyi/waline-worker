@@ -13,10 +13,11 @@ const fetchPath = path.resolve('./src/utils/fetch.ts');
       sourcemap: false,
       platform: 'node',
       format: 'esm',
-      target: ['es2017'],
+      target: ['esnext'],
       entryPoints: {
         worker: './src/index.ts',
       },
+      minify: true,
       outdir: './dist',
       plugins: [
         resolve({ 'node-fetch': fetchPath }),

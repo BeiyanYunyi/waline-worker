@@ -96,13 +96,18 @@ export default lidisCrypt;
 // For vitest
 if (import.meta.vitest) {
   const { it, expect, describe } = import.meta.vitest;
-  describe('Test encryption', () => {
+  describe.concurrent('Test encryption', () => {
+    const text = '114514';
+    const password = '114514';
     it('Should be able to encrypt and decrypt', async () => {
-      const text = '114514';
-      const password = '114514';
       const encrypted = await lidisCrypt.encrypt(text, password);
       const decrypted = await lidisCrypt.decrypt(encrypted, password);
       expect(decrypted).toBe(text);
+    });
+    it("Shouldn't be the same when encrypting the same text", async () => {
+      const encrypted1 = await lidisCrypt.encrypt(text, password);
+      const encrypted2 = await lidisCrypt.encrypt(text, password);
+      expect(encrypted1).not.toBe(encrypted2);
     });
   });
 }

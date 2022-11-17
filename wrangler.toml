@@ -11,5 +11,9 @@ kv_namespaces = [
   { binding = "CFKV", preview_id = "e44c44edee98437796eb2280f79d30f8" },
 ]
 
+[[d1]]
+binding = "DB"
+database = "waline"
+
 [miniflare]
 kv_persist = true

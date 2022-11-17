@@ -12,5 +12,6 @@ export default defineConfig({
     },
     includeSource: ['src/**/*.{ts,tsx}'],
     coverage: { provider: 'c8', reporter: ['html', 'text'] },
+    testTimeout: 10000,
   },
 });
