@@ -27,7 +27,9 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm i
+        run: pnpm i --prefer-offline
 
       - name: Build test
         run: pnpm test:CI
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
