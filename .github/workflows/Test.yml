@@ -37,5 +37,5 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
-          files: ./coverage/lcov.info
+          files: ./coverage/coverage-final.json
           name: waline-worker
