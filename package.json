@@ -6,7 +6,7 @@
   "scripts": {
     "build:worker": "node -r esbuild-register ./scripts/build.ts",
     "test": "vitest --ui",
-    "test:CI": "vitest run --coverage --no-threads",
+    "test:CI": "vitest run --coverage --watch false",
     "dev": "cross-env DEV=true miniflare dist/worker.js -mdwB \"pnpm build:worker\" -k CFKV --build-watch-path src",
     "deploy": "wrangler publish src/index.ts"
   },
