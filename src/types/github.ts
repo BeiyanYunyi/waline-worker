@@ -66,6 +66,7 @@ export interface GRepositoryDiscussion {
   id: string;
   url: string;
   locked: boolean;
+  body: string;
   repository: {
     nameWithOwner: string;
   };

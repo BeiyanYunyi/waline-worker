@@ -34,6 +34,7 @@ const DISCUSSION_QUERY = `
   id
   url
   locked
+  body
   repository {
     nameWithOwner
   }
