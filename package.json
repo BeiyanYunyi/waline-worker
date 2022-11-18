@@ -22,6 +22,7 @@
     "@typescript-eslint/parser": "^5.43.0",
     "@vitest/coverage-c8": "^0.25.2",
     "@vitest/ui": "^0.25.2",
+    "@waline/client": "^2.14.1",
     "cross-env": "^7.0.3",
     "dotenv": "^16.0.3",
     "esbuild": "^0.15.14",

@@ -133,6 +133,7 @@ export interface SpecificResponse {
 export type GetDiscussionResponse = SearchResponse | SpecificResponse;
 
 export async function getDiscussion(
+  token: string,
   params: GetDiscussionParams,
 ): Promise<GetDiscussionResponse | GError | GMultipleErrors> {
   const { repo: repoWithOwner, term, number, category, strict, ...pagination } = params;
@@ -148,7 +149,7 @@ export async function getDiscussion(
 
   return fetch(GITHUB_GRAPHQL_API_URL, {
     method: 'POST',
-    headers: { Authorization: `Bearer ${process.env.GITHUB_TOKEN}`, 'User-Agent': 'WalineWorker' },
+    headers: { Authorization: `Bearer ${token}`, 'User-Agent': 'WalineWorker' },
 
     body: JSON.stringify({
       query: gql,

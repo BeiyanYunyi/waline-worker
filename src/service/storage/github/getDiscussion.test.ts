@@ -6,7 +6,7 @@ import { getDiscussion, SpecificResponse } from './getDiscussion';
 describe('Can get discussion', () => {
   config();
   it('Can get discussion', async () => {
-    const res = await getDiscussion({
+    const res = await getDiscussion(process.env.GITHUB_TOKEN, {
       repo: 'lixiang810/fk-gfw',
       term: 'posts/%E7%AC%AC%E4%B8%80%E7%AF%87/',
       number: 0,
@@ -20,7 +20,7 @@ describe('Can get discussion', () => {
     if ('message' in res) return;
     if ('errors' in res) return;
     let discussion: GRepositoryDiscussion | null;
-    console.log(res.data);
+    if (!process.env.CI) console.log(res.data);
     if ('search' in res.data) {
       const { search } = res.data;
       const { discussionCount, nodes } = search;
@@ -29,6 +29,6 @@ describe('Can get discussion', () => {
       discussion = (res as SpecificResponse).data.repository.discussion;
     }
     expect(discussion).not.toBeNull();
-    console.log(JSON.stringify(discussion, null, 2));
-  }, 114514);
+    if (!process.env.CI) console.log(JSON.stringify(discussion, null, 2));
+  });
 });

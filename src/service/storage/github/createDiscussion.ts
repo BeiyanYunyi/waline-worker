@@ -33,6 +33,7 @@ export async function createDiscussion(
     headers: {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
+      'User-Agent': 'WalineWorker',
     },
     body: JSON.stringify({
       query: CREATE_DISCUSSION_QUERY,
