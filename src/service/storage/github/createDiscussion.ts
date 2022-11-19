@@ -6,6 +6,7 @@ const CREATE_DISCUSSION_QUERY = `
     createDiscussion(input: $input) {
       discussion {
         id
+        body
       }
     }
   }`;
@@ -19,6 +20,7 @@ export interface CreateDiscussionResponse {
     createDiscussion: {
       discussion: {
         id: string;
+        body: string;
       };
     };
   };

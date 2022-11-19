@@ -2,17 +2,18 @@
 import { config } from 'dotenv';
 import { describe, expect, it } from 'vitest';
 import { GRepositoryDiscussion } from '../../../types/github';
+import digestMessage from '../../../utils/digestMessage';
 import { addDiscussionComment } from './addDiscussionComment';
 import { createDiscussion } from './createDiscussion';
 import { deleteDiscussion } from './deleteDiscussion';
 import { getDiscussion, SpecificResponse } from './getDiscussion';
 import { lockDiscussion } from './lockDiscussion';
 
-describe('Discussion CRLD Test (L stands for Lock)', () => {
+describe('Discussion CRLD Test (L stands for Lock)', async () => {
   config();
   let id = '';
   const title = crypto.randomUUID();
-  const body = crypto.randomUUID();
+  const body = `${crypto.randomUUID()}\n<!--SHA1:${await digestMessage(title)}-->`;
   const commentBody = crypto.randomUUID();
 
   it('should create a discussion', async () => {
@@ -72,7 +73,7 @@ describe('Discussion CRLD Test (L stands for Lock)', () => {
       term: title,
       number: 0,
       category: process.env.GITHUB_CATEGORY,
-      strict: false,
+      strict: true,
       last: 100,
     });
     if (!process.env.CI) console.log(JSON.stringify(res, null, 2));

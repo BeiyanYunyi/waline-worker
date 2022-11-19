@@ -1,14 +1,6 @@
-import { GUser, GRepositoryDiscussion, GError, GMultipleErrors } from '../../../types/github';
+import { GError, GMultipleErrors, GRepositoryDiscussion, GUser } from '../../../types/github';
+import digestMessage from '../../../utils/digestMessage';
 import { GITHUB_GRAPHQL_API_URL } from './config';
-
-async function digestMessage(message: string, algorithm: AlgorithmIdentifier = 'SHA-1') {
-  // https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest#converting_a_digest_to_a_hex_string
-  const msgUint8 = new TextEncoder().encode(message);
-  const hashBuffer = await crypto.subtle.digest(algorithm, msgUint8);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
-  return hashHex;
-}
 
 function parseRepoWithOwner(repoWithOwner: string) {
   const [owner, name] = repoWithOwner.split('/');
