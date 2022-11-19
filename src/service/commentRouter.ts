@@ -6,6 +6,7 @@ import { GRepositoryDiscussion } from '../types/github';
 import { createDiscussion } from './storage/github/createDiscussion';
 import digestMessage from '../utils/digestMessage';
 import { lockDiscussion } from './storage/github/lockDiscussion';
+import ghCommentToWalineComment from './storage/github/ghCommentToWalineComment';
 
 const commentRouter = new Hono<{ Bindings: NodeJS.ProcessEnv }>();
 
@@ -74,23 +75,9 @@ commentRouter.get(
       count: discussion.comments.totalCount,
       errmsg: '',
       errno: 0,
-      data: [
-        {
-          comment: "<p>Hello World</p><script>alert('asd')</script>\n",
-          createdAt: '2021-12-02T08:26:20.614Z',
-          insertedAt: '2021-12-02T08:26:20.614Z',
-          updatedAt: '2021-12-02T08:26:20.614Z',
-          ua: '111',
-          url: '',
-          link: '',
-          mail: 'd41d8cd98f00b204e9800998ecf8427e',
-          nick: '匿名匿名',
-          objectId: '9007199254583671',
-          avatar:
-            'https://avatar.75cdn.workers.dev/?url=https%3A%2F%2Fseccdn.libravatar.org%2Favatar%2Fd41d8cd98f00b204e9800998ecf8427e',
-          children: [],
-        },
-      ],
+      data: await Promise.all(
+        discussion.comments.nodes.map((comment) => ghCommentToWalineComment(comment)),
+      ),
     };
     return c.json(res);
   },
