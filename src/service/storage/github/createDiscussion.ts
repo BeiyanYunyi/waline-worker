@@ -1,15 +1,55 @@
-import { GCreateDiscussionInput } from '../../../types/github';
+import { GCreateDiscussionInput, GRepositoryDiscussion } from '../../../types/github';
 import { GITHUB_GRAPHQL_API_URL } from './config';
 
 const CREATE_DISCUSSION_QUERY = `
-  mutation($input: CreateDiscussionInput!) {
-    createDiscussion(input: $input) {
-      discussion {
-        id
-        body
+mutation ($input: CreateDiscussionInput!) {
+  createDiscussion(input: $input) {
+    discussion {
+      id
+      url
+      locked
+      body
+      repository {
+        nameWithOwner
+      }
+      comments(first: 1) {
+        totalCount
+        pageInfo {
+          startCursor
+          hasNextPage
+          hasPreviousPage
+          endCursor
+        }
+        nodes {
+          id
+          viewerDidAuthor
+          createdAt
+          url
+          lastEditedAt
+          deletedAt
+          body
+          bodyHTML
+          replies(last: 1) {
+            totalCount
+            nodes {
+              id
+              viewerDidAuthor
+              createdAt
+              url
+              lastEditedAt
+              deletedAt
+              body
+              bodyHTML
+              replyTo {
+                id
+              }
+            }
+          }
+        }
       }
     }
-  }`;
+  }
+}`;
 
 export interface CreateDiscussionBody {
   input: GCreateDiscussionInput;
@@ -18,10 +58,7 @@ export interface CreateDiscussionBody {
 export interface CreateDiscussionResponse {
   data: {
     createDiscussion: {
-      discussion: {
-        id: string;
-        body: string;
-      };
+      discussion: GRepositoryDiscussion;
     };
   };
 }

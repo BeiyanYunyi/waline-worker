@@ -1,7 +1,12 @@
 import { Hono } from 'hono';
 import { validator } from 'hono/validator';
+import type { GetCommentResponse } from '@waline/client/dist/api';
+import { getDiscussion, SpecificResponse } from './storage/github/getDiscussion';
+import { GRepositoryDiscussion } from '../types/github';
+import { createDiscussion } from './storage/github/createDiscussion';
+import digestMessage from '../utils/digestMessage';
 
-const commentRouter = new Hono();
+const commentRouter = new Hono<{ Bindings: NodeJS.ProcessEnv }>();
 
 commentRouter.get(
   '/',
@@ -12,18 +17,61 @@ commentRouter.get(
     sortBy: v.query('sortBy'),
     lang: v.query('lang'),
   })),
-  (c) => {
+  async (c) => {
     const queries = c.req.valid();
     console.log(queries);
-    return c.json({
-      page: 1,
-      totalPages: 1,
-      pageSize: 10,
-      count: 1,
+    const getDiscussionRes = await getDiscussion(c.env.GITHUB_TOKEN, {
+      repo: c.env.GITHUB_REPO,
+      term: queries.path,
+      number: 0,
+      category: c.env.GITHUB_CATEGORY,
+      strict: true,
+      last: 100,
+    });
+    if ('message' in getDiscussionRes) {
+      return c.json({ errmsg: getDiscussionRes.message, errno: 500 }, 500);
+    }
+    if ('errors' in getDiscussionRes) {
+      return c.json(
+        { errmsg: getDiscussionRes.errors.map((e) => e.message).join(', '), errno: 500 },
+        500,
+      );
+    }
+    let discussion: GRepositoryDiscussion | null;
+    if ('search' in getDiscussionRes.data) {
+      const { search } = getDiscussionRes.data;
+      const { discussionCount, nodes } = search;
+      discussion = discussionCount > 0 ? nodes[0] : null;
+    } else {
+      discussion = (getDiscussionRes as SpecificResponse).data.repository.discussion;
+    }
+    if (!discussion)
+      discussion = (
+        await createDiscussion(c.env.GITHUB_TOKEN, {
+          input: {
+            repositoryId: c.env.GITHUB_REPO_ID,
+            categoryId: c.env.GITHUB_CATEGORY_ID,
+            body: 'This is a Waline Worker Thread and therefore locked by it',
+            title: `${queries.path}: ${await digestMessage(queries.path)}`,
+          },
+        })
+      ).data.createDiscussion.discussion;
+    const pageSize = queries.pageSize ? Number(queries.pageSize) : 10;
+    const res: GetCommentResponse = {
+      page: queries.page ? Number(queries.page) : 1,
+      totalPages: Math.ceil(discussion.comments.totalCount / pageSize),
+      pageSize,
+      count: discussion.comments.totalCount,
+      errmsg: '',
+      errno: 0,
       data: [
         {
           comment: "<p>Hello World</p><script>alert('asd')</script>\n",
+          createdAt: '2021-12-02T08:26:20.614Z',
           insertedAt: '2021-12-02T08:26:20.614Z',
+          updatedAt: '2021-12-02T08:26:20.614Z',
+          ua: '111',
+          url: '',
           link: '',
           mail: 'd41d8cd98f00b204e9800998ecf8427e',
           nick: '匿名匿名',
@@ -33,7 +81,8 @@ commentRouter.get(
           children: [],
         },
       ],
-    });
+    };
+    return c.json(res);
   },
 );
 
