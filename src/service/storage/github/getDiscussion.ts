@@ -131,7 +131,9 @@ export async function getDiscussion(
 ): Promise<GetDiscussionResponse | GError | GMultipleErrors> {
   const { repo: repoWithOwner, term, number, category, strict, ...pagination } = params;
   const resolvedTerm = strict ? await digestMessage(term) : term;
-  const searchIn = strict ? 'in:body' : 'in:title';
+  // const searchIn = strict ? 'in:body' : 'in:title';
+  // Now we will include the hash in title.
+  const searchIn = 'in:title';
 
   // Force repo to lowercase to prevent GitHub's bug when using category in query.
   // https://github.com/giscus/giscus/issues/118

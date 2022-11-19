@@ -12,8 +12,9 @@ import { lockDiscussion } from './lockDiscussion';
 describe('Discussion CRLD Test (L stands for Lock)', async () => {
   config();
   let id = '';
-  const title = crypto.randomUUID();
-  const body = `${crypto.randomUUID()}\n<!--SHA1:${await digestMessage(title)}-->`;
+  const titleStr = crypto.randomUUID();
+  const title = `${titleStr}: ${await digestMessage(titleStr)}`;
+  const body = crypto.randomUUID();
   const commentBody = crypto.randomUUID();
 
   it('should create a discussion', async () => {
@@ -70,7 +71,7 @@ describe('Discussion CRLD Test (L stands for Lock)', async () => {
     if (!id) return;
     const res = await getDiscussion(process.env.GITHUB_TOKEN, {
       repo: process.env.GITHUB_REPO,
-      term: title,
+      term: titleStr,
       number: 0,
       category: process.env.GITHUB_CATEGORY,
       strict: true,
