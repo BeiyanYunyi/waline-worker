@@ -2,6 +2,7 @@
 import { config } from 'dotenv';
 import { describe, expect, it } from 'vitest';
 import { GRepositoryDiscussion } from '../../../types/github';
+import { addDiscussionComment } from './addDiscussionComment';
 import { createDiscussion } from './createDiscussion';
 import { deleteDiscussion } from './deleteDiscussion';
 import { getDiscussion, SpecificResponse } from './getDiscussion';
@@ -12,6 +13,7 @@ describe('Discussion CRLD Test (L stands for Lock)', () => {
   let id = '';
   const title = crypto.randomUUID();
   const body = crypto.randomUUID();
+  const commentBody = crypto.randomUUID();
 
   it('should create a discussion', async () => {
     const res = await createDiscussion(process.env.GITHUB_TOKEN, {
@@ -46,6 +48,21 @@ describe('Discussion CRLD Test (L stands for Lock)', () => {
     expect(locked).toBe(false); // In this case, the discussion is locked.
   });
 
+  it('should add a comment', async () => {
+    // Cannot use condition because of it's async
+    expect(id).toBeTruthy();
+    if (!id) return;
+    const res = await addDiscussionComment(
+      { discussionId: id, body: commentBody },
+      process.env.GITHUB_TOKEN,
+    );
+    if (!process.env.CI) console.log(JSON.stringify(res, null, 2));
+    expect(res).toHaveProperty('data');
+    if (!res.data) return;
+    expect(res.data).toHaveProperty('addDiscussionComment');
+    expect(res.data.addDiscussionComment.comment.body).toBe(commentBody);
+  });
+
   it('should get a discussion', async () => {
     // Cannot use condition because of it's async
     expect(id).toBeTruthy();
@@ -54,17 +71,17 @@ describe('Discussion CRLD Test (L stands for Lock)', () => {
       repo: process.env.GITHUB_REPO,
       term: title,
       number: 0,
-      category: 'Test usage',
+      category: process.env.GITHUB_CATEGORY,
       strict: false,
-      last: 1,
+      last: 100,
     });
+    if (!process.env.CI) console.log(JSON.stringify(res, null, 2));
     expect(res).toHaveProperty('data');
     expect(res).not.toHaveProperty('message');
     expect(res).not.toHaveProperty('errors');
     if ('message' in res) return;
     if ('errors' in res) return;
     let discussion: GRepositoryDiscussion | null;
-    if (!process.env.CI) console.log(res.data);
     if ('search' in res.data) {
       const { search } = res.data;
       const { discussionCount, nodes } = search;
