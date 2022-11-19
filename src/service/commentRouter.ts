@@ -5,6 +5,7 @@ import { getDiscussion, SpecificResponse } from './storage/github/getDiscussion'
 import { GRepositoryDiscussion } from '../types/github';
 import { createDiscussion } from './storage/github/createDiscussion';
 import digestMessage from '../utils/digestMessage';
+import { lockDiscussion } from './storage/github/lockDiscussion';
 
 const commentRouter = new Hono<{ Bindings: NodeJS.ProcessEnv }>();
 
@@ -45,7 +46,7 @@ commentRouter.get(
     } else {
       discussion = (getDiscussionRes as SpecificResponse).data.repository.discussion;
     }
-    if (!discussion)
+    if (!discussion) {
       discussion = (
         await createDiscussion(c.env.GITHUB_TOKEN, {
           input: {
@@ -56,6 +57,15 @@ commentRouter.get(
           },
         })
       ).data.createDiscussion.discussion;
+      // Lock the discussion after creation
+      await lockDiscussion(c.env.GITHUB_TOKEN, {
+        input: {
+          clientMutationId: 'WalineWorker',
+          lockReason: 'RESOLVED',
+          lockableId: discussion.id,
+        },
+      });
+    }
     const pageSize = queries.pageSize ? Number(queries.pageSize) : 10;
     const res: GetCommentResponse = {
       page: queries.page ? Number(queries.page) : 1,
