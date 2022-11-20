@@ -32,6 +32,7 @@ jobs:
       - name: Test
         run: pnpm test:CI
         env:
+          MASTER_KEY: ${{ secrets.MASTER_KEY }}
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           GITHUB_REPO: lixiang810/waline-worker
           GITHUB_REPO_ID: R_kgDOIbK7Mw

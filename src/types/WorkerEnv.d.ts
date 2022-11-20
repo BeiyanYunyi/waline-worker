@@ -9,6 +9,7 @@ declare global {
       GITHUB_REPO_ID: string;
       GITHUB_CATEGORY: string;
       GITHUB_CATEGORY_ID: string;
+      MASTER_KEY: string;
       CI?: string;
     }
   }

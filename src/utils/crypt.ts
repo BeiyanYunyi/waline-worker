@@ -101,7 +101,9 @@ if (import.meta.vitest) {
     const password = '114514';
     it('Should be able to encrypt and decrypt', async () => {
       const encrypted = await lidisCrypt.encrypt(text, password);
+      if (!process.env.CI) console.log(encrypted);
       const decrypted = await lidisCrypt.decrypt(encrypted, password);
+      if (!process.env.CI) console.log(decrypted);
       expect(decrypted).toBe(text);
     });
     it("Shouldn't be the same when encrypting the same text", async () => {

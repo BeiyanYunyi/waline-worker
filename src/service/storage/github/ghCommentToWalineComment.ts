@@ -1,36 +1,25 @@
 import type { WalineComment } from '@waline/client';
 import { GComment } from '../../../types/github';
+import lidisCrypt from '../../../utils/crypt';
 
-const ghCommentToWalineComment = async (gComment: GComment): Promise<WalineComment> => {
-  const { bodyHTML, createdAt } = gComment;
+const ghCommentToWalineComment = async (
+  gComment: GComment,
+  env: NodeJS.ProcessEnv,
+): Promise<WalineComment> => {
+  const { bodyHTML, body } = gComment;
+  const matchAry = body.match(/^(?:<!--)(.*)(?:-->)$/m);
+  if (!matchAry || !matchAry[1]) {
+    throw new Error('Invalid comment body');
+  }
+  const matchRes = matchAry[1];
+  let decryptRes;
+  if (matchRes) decryptRes = await lidisCrypt.decrypt(matchRes, env.MASTER_KEY);
+  if (!decryptRes) {
+    throw new Error('Invalid comment body');
+  }
   const comment: WalineComment = {
     comment: bodyHTML,
-    createdAt,
-    insertedAt: createdAt,
-    updatedAt: createdAt,
-    ua: 'WalineWorker',
-    url: '',
-    link: '',
-    mail: 'd41d8cd98f00b204e9800998ecf8427e',
-    nick: '匿名匿名',
-    objectId: '9007199254583671',
-    avatar:
-      'https://avatar.75cdn.workers.dev/?url=https%3A%2F%2Fseccdn.libravatar.org%2Favatar%2Fd41d8cd98f00b204e9800998ecf8427e',
-    children: gComment.replies.nodes.map((reply) => ({
-      comment: reply.bodyHTML,
-      createdAt: reply.createdAt,
-      insertedAt: reply.createdAt,
-      updatedAt: reply.createdAt,
-      ua: 'WalineWorker',
-      url: '',
-      link: '',
-      mail: 'd41d8cd98f00b204e9800998ecf8427e',
-      nick: '匿名匿名',
-      objectId: '9007199254583671',
-      avatar:
-        'https://avatar.75cdn.workers.dev/?url=https%3A%2F%2Fseccdn.libravatar.org%2Favatar%2Fd41d8cd98f00b204e9800998ecf8427e',
-      children: [],
-    })),
+    ...JSON.parse(decryptRes),
   };
   return comment;
 };
